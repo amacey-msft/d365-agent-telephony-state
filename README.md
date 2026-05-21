@@ -1,29 +1,40 @@
 # Agent Telephony State Dashboard
 
-Real-time agent telephony state tracking for **Dynamics 365 Contact Center**. Surfaces granular sub-states (Idle / Talking / On Hold / ACW) in a live supervisor dashboard embedded in Customer Service workspace (CCW) navigation. Zero external infrastructure — JS web resource + Dataverse table + HTML dashboard, all native to D365.
+See exactly what your agents are doing on the phone — in real time.
 
-## What's Included
+This solution adds a live dashboard to your Dynamics 365 Contact Center that shows each agent's current phone state: **Idle**, **Talking**, **On Hold**, or **After Call Work (ACW)**. Supervisors see it in a new tab directly inside Customer Service workspace — no extra tools, no separate screens.
 
-1. **JS Web Resource** (`webresource/alai_telephonystate.js`) — Polls for telephony sub-state across CCW iframes, writes to Dataverse via `Xrm.WebApi`. Must be added manually to the Active Conversation form as a Form Library after import.
-2. **Dataverse Table** (`alai_AgentTelephonyState`) — Stores agent name, state (Idle / Talking / On Hold / ACW), and timestamp. Included in solution, auto-created on import.
-3. **Supervisor Dashboard** (`webresource/alai_supervisor_dashboard.html`) — Self-contained HTML web resource. Auto-refreshes every 5s. Embedded in CCW nav sidebar as "Agent State Dashboard" tab.
+## What You Get
 
-## Prerequisites
+- **Live supervisor dashboard** — refreshes every 5 seconds, shows all agents and their current state
+- **Agent state tracking** — stored in Dataverse, visible immediately after import
+- Everything runs natively inside D365 — nothing to install on agent machines
 
-- D365 Contact Center environment with Customer Service workspace (CCW) enabled
-- System Customizer role or greater in the target environment
+## Requirements
 
-## Quick Start
+- Dynamics 365 Contact Center with Customer Service workspace enabled
+- System Customizer role (or higher) in your environment
 
-1. Import the solution zip (`AlAIAgentTelephonyState_1_0_0_0.zip`) via [make.powerapps.com](https://make.powerapps.com) > Solutions > Import solution
-2. Open the Active Conversation form in D365 > Form Libraries > add `alai_telephonystate.js` as a Form Library
-3. Publish all customizations
-4. Refresh CCW — "Agent State Dashboard" will appear in the nav sidebar automatically
+## Install
 
-## Note
+### Step 1 — Import the solution
+1. Go to [make.powerapps.com](https://make.powerapps.com) and select your environment
+2. Click **Solutions** in the left menu → **Import solution**
+3. Upload `AlAIAgentTelephonyState_1_0_0_0.zip` from the [Releases](../../releases) page and follow the wizard
+4. Choose **Unmanaged** when asked
 
-The Active Conversation form injection (step 2) must be done manually after import. The managed OC form is owned by Microsoft and cannot be modified inside a solution package. Everything else — the Dataverse table, supervisor dashboard web resource, and optional Flow — imports cleanly with no extra steps.
+### Step 2 — Add the tracking script to the Active Conversation form
+1. In your environment, go to **Settings → Customizations → Customize the System**
+2. Navigate to **Entities → Conversation → Forms → Active Conversation**
+3. Open **Form Libraries** → click **Add Library** → select `alai_telephonystate.js`
+4. Save and click **Publish All Customizations**
+
+### Step 3 — You're done
+Refresh Customer Service workspace. A new **Agent State Dashboard** tab will appear in the left navigation sidebar.
 
 ---
 
-*Built with Clawpilot (GitHub Copilot CLI) by Al Macey | May 2026*
+> For technical details, architecture notes, and developer documentation see [README-technical.md](README-technical.md).
+
+---
+*Built by Al Macey · May 2026*
