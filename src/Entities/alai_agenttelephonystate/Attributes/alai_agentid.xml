@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<attribute PhysicalName="alai_agentid">
+  <Type>Lookup</Type>
+  <Name>alai_agentid</Name>
+  <LogicalName>alai_agentid</LogicalName>
+  <RequiredLevel>ApplicationRequired</RequiredLevel>
+  <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+  <ImeMode>auto</ImeMode>
+  <targets>systemuser</targets>
+  <labels>
+    <label description="Agent" languagecode="1033" />
+  </labels>
+</attribute>

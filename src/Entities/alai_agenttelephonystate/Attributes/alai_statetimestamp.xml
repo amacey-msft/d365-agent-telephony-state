@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<attribute PhysicalName="alai_statetimestamp">
+  <Type>DateTime</Type>
+  <Name>alai_statetimestamp</Name>
+  <LogicalName>alai_statetimestamp</LogicalName>
+  <RequiredLevel>None</RequiredLevel>
+  <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+  <Format>DateAndTime</Format>
+  <ImeMode>auto</ImeMode>
+  <labels>
+    <label description="State Timestamp" languagecode="1033" />
+  </labels>
+</attribute>

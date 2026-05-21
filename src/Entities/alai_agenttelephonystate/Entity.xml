@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Entity>
+  <EntityInfo>
+    <entity Name="alai_agenttelephonystate" OwnershipType="UserOwned" TableType="Standard">
+      <labels>
+        <label description="Agent Telephony State" languagecode="1033" />
+      </labels>
+      <descriptions>
+        <description description="Tracks real-time telephony sub-states for agents (Talking, OnHold, ACW) beyond standard presence." languagecode="1033" />
+      </descriptions>
+    </entity>
+  </EntityInfo>
+  <forms />
+  <views />
+  <workflows />
+  <fieldSecurityProfiles />
+  <languages>
+    <language>1033</language>
+  </languages>
+</Entity>

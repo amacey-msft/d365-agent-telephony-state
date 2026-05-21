@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<attribute PhysicalName="alai_telephonystate">
+  <Type>Picklist</Type>
+  <Name>alai_telephonystate</Name>
+  <LogicalName>alai_telephonystate</LogicalName>
+  <RequiredLevel>ApplicationRequired</RequiredLevel>
+  <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+  <optionset>
+    <options>
+      <option value="100000000"><labels><label description="Idle" languagecode="1033" /></labels></option>
+      <option value="100000001"><labels><label description="Talking" languagecode="1033" /></labels></option>
+      <option value="100000002"><labels><label description="On Hold" languagecode="1033" /></labels></option>
+      <option value="100000003"><labels><label description="After Call Work" languagecode="1033" /></labels></option>
+    </options>
+  </optionset>
+  <labels>
+    <label description="Telephony State" languagecode="1033" />
+  </labels>
+</attribute>

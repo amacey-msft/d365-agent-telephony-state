@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<attribute PhysicalName="alai_conversationid">
+  <Type>String</Type>
+  <Name>alai_conversationid</Name>
+  <LogicalName>alai_conversationid</LogicalName>
+  <RequiredLevel>None</RequiredLevel>
+  <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+  <MaxLength>100</MaxLength>
+  <ImeMode>auto</ImeMode>
+  <labels>
+    <label description="Conversation ID" languagecode="1033" />
+  </labels>
+</attribute>

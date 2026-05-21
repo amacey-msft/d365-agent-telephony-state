@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Contact Center Supervisor Dashboard</title>
+<script>
+(() => {
+  const p = new URLSearchParams(window.location.search).get("clawpilotTheme");
+  const t = p || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+  document.documentElement.setAttribute("data-theme", t);
+})();
+</script>
+<style>
+:root {
+  color-scheme: light;
+  --cp-bg:#f7f4ef;--cp-bg-elevated:#fcfbf8;--cp-surface:#ffffff;--cp-surface-soft:#f5f5f5;
+  --cp-border:#dedede;--cp-border-strong:#919191;--cp-text:#242424;--cp-text-muted:#5c5c5c;
+  --cp-text-soft:#6f6f6f;--cp-accent:#b11f4b;--cp-accent-hover:#9a1a41;
+  --cp-accent-soft:rgba(177,31,75,0.08);--cp-accent-fg:#ffffff;
+  --cp-success:#16a34a;--cp-danger:#dc2626;--cp-warning:#f59e0b;--cp-link:#0078d4;
+  --cp-shadow:0 18px 48px rgba(0,0,0,0.12);
+  --si:#f1f5f9;--sf:#475569;--sd:#94a3b8;
+  --ti:#dcfce7;--tf:#15803d;--td:#22c55e;
+  --hi:#fee2e2;--hf:#b91c1c;--hd:#ef4444;
+  --ai:#fef3c7;--af:#b45309;--ad:#f59e0b;
+}
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --cp-bg:#3d3b3a;--cp-bg-elevated:#343231;--cp-surface:#292929;--cp-surface-soft:#2e2e2e;
+  --cp-border:#474747;--cp-border-strong:#5f5f5f;--cp-text:#dedede;--cp-text-muted:#919191;
+  --cp-text-soft:#b0b0b0;--cp-accent:#fd8ea1;--cp-accent-hover:#fb7b91;
+  --cp-accent-soft:rgba(253,142,161,0.14);--cp-accent-fg:#1a1a1a;
+  --cp-success:#4ade80;--cp-danger:#f87171;--cp-warning:#fbbf24;--cp-link:#4da6ff;
+  --cp-shadow:0 18px 48px rgba(0,0,0,0.32);
+  --si:#1e293b;--sf:#94a3b8;--sd:#64748b;
+  --ti:#14532d;--tf:#86efac;--td:#4ade80;
+  --hi:#450a0a;--hf:#fca5a5;--hd:#f87171;
+  --ai:#451a03;--af:#fcd34d;--ad:#fbbf24;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Segoe UI",Aptos,Calibri,-apple-system,BlinkMacSystemFont,sans-serif;background:var(--cp-bg);color:var(--cp-text);min-height:100vh;display:flex;flex-direction:column}
+/* Layout */
+.topbar{background:var(--cp-surface);border-bottom:1px solid var(--cp-border);padding:0 20px;height:52px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;gap:16px}
+.topbar-left{display:flex;align-items:center;gap:12px}
+.brand-icon{width:32px;height:32px;background:var(--cp-accent);border-radius:7px;display:flex;align-items:center;justify-content:center;color:var(--cp-accent-fg);font-size:16px;flex-shrink:0}
+.brand-title{font-size:1rem;font-weight:700;letter-spacing:-.01em}
+.brand-sub{font-size:.7rem;color:var(--cp-text-muted);margin-top:1px}
+.topbar-right{display:flex;align-items:center;gap:16px}
+.live-pill{display:flex;align-items:center;gap:6px;padding:3px 10px;border-radius:999px;border:1px solid var(--cp-success);background:rgba(22,163,74,.08);font-size:.72rem;font-weight:600;color:var(--cp-success)}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--cp-success);animation:pulse 2s ease-in-out infinite}
+.clock{font-size:.8125rem;color:var(--cp-text-muted);font-variant-numeric:tabular-nums;min-width:70px;text-align:right}
+.btn{padding:5px 12px;border-radius:6px;border:1px solid var(--cp-border);background:var(--cp-surface);color:var(--cp-text);font-size:.78rem;cursor:pointer;font-family:inherit;transition:background .15s}
+.btn:hover{background:var(--cp-surface-soft)}
+.btn-accent{background:var(--cp-accent);color:var(--cp-accent-fg);border-color:var(--cp-accent)}
+.btn-accent:hover{background:var(--cp-accent-hover)}
+.refresh-bar{height:2px;background:var(--cp-accent-soft);flex-shrink:0;overflow:hidden}
+.refresh-bar-fill{height:100%;background:var(--cp-accent);width:0%;transition:width linear}
+/* KPI row */
+.kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;padding:16px 20px;flex-shrink:0}
+.kpi-card{background:var(--cp-surface);border:1px solid var(--cp-border);border-radius:12px;padding:14px 16px;box-shadow:0 0 2px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.1)}
+.kpi-label{font-size:.7rem;font-weight:600;color:var(--cp-text-muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px}
+.kpi-value{font-size:1.75rem;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+.kpi-sub{font-size:.7rem;color:var(--cp-text-muted);margin-top:4px}
+.kpi-value.ok{color:var(--cp-success)}
+.kpi-value.warn{color:var(--cp-warning)}
+.kpi-value.danger{color:var(--cp-danger)}
+/* Main content */
+.content{flex:1;display:grid;grid-template-columns:1fr 320px;gap:16px;padding:0 20px 20px;min-height:0;overflow:hidden}
+@media(max-width:900px){.content{grid-template-columns:1fr}}
+/* Agent grid */
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.section-title{font-size:.875rem;font-weight:700;display:flex;align-items:center;gap:8px}
+.badge-count{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;padding:0 6px;border-radius:999px;background:var(--cp-accent-soft);color:var(--cp-accent);font-size:.7rem;font-weight:700}
+.filter-tabs{display:flex;gap:4px}
+.tab{padding:3px 10px;border-radius:6px;border:1px solid var(--cp-border);background:transparent;color:var(--cp-text-muted);font-size:.72rem;cursor:pointer;font-family:inherit;transition:all .15s}
+.tab.active{background:var(--cp-accent-soft);border-color:var(--cp-accent);color:var(--cp-accent);font-weight:600}
+.agent-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;align-content:start;overflow-y:auto;max-height:calc(100vh - 280px)}
+/* Agent card */
+.acard{background:var(--cp-surface);border:1px solid var(--cp-border);border-radius:14px;padding:14px;box-shadow:0 0 2px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.1);transition:border-color .25s,box-shadow .25s;position:relative}
+.acard.s-hold{border-color:var(--hd);box-shadow:0 0 0 2px rgba(239,68,68,.2),0 1px 2px rgba(0,0,0,.1)}
+.acard.s-talking{border-color:var(--td)}
+.acard-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.avatar{width:34px;height:34px;border-radius:50%;background:var(--cp-accent-soft);color:var(--cp-accent);font-weight:700;font-size:.825rem;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.aname{font-weight:600;font-size:.875rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px}
+.aconv{font-size:.65rem;color:var(--cp-text-muted);margin-top:1px;font-family:Consolas,"Courier New",monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px}
+.sbadge{display:flex;align-items:center;gap:5px;padding:3px 8px;border-radius:999px;font-size:.68rem;font-weight:600;white-space:nowrap;flex-shrink:0}
+.sbadge .dot{width:6px;height:6px;border-radius:50%}
+.sb-idle{background:var(--si);color:var(--sf)} .sb-idle .dot{background:var(--sd)}
+.sb-talking{background:var(--ti);color:var(--tf)} .sb-talking .dot{background:var(--td);animation:pulse 1.6s ease-in-out infinite}
+.sb-hold{background:var(--hi);color:var(--hf)} .sb-hold .dot{background:var(--hd);animation:pulse .85s ease-in-out infinite}
+.sb-acw{background:var(--ai);color:var(--af)} .sb-acw .dot{background:var(--ad)}
+.acard-footer{display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding-top:8px;border-top:1px solid var(--cp-border);font-size:.68rem;color:var(--cp-text-muted)}
+.dur{font-variant-numeric:tabular-nums}
+.dur.warn{color:var(--hf);font-weight:600}
+/* Hold bar (shows duration visually for On Hold agents) */
+.hold-bar{margin-top:8px;height:3px;background:var(--cp-border);border-radius:2px;overflow:hidden}
+.hold-bar-fill{height:100%;background:var(--hd);border-radius:2px;transition:width .5s linear}
+/* Right panel */
+.right-panel{display:flex;flex-direction:column;gap:16px;overflow-y:auto;max-height:calc(100vh - 200px)}
+/* Alerts */
+.alerts-panel{background:var(--cp-surface);border:1px solid var(--cp-border);border-radius:14px;padding:14px}
+.alert-item{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--cp-border)}
+.alert-item:last-child{border-bottom:none}
+.alert-icon{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+.alert-hold{background:var(--hi);color:var(--hf)}
+.alert-body{flex:1;min-width:0}
+.alert-name{font-size:.8rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.alert-desc{font-size:.7rem;color:var(--cp-text-muted);margin-top:2px}
+.alert-time{font-size:.68rem;color:var(--cp-text-muted);white-space:nowrap;font-variant-numeric:tabular-nums;flex-shrink:0}
+.no-alerts{text-align:center;padding:20px 0;color:var(--cp-text-muted);font-size:.8rem}
+/* Activity feed */
+.feed-panel{background:var(--cp-surface);border:1px solid var(--cp-border);border-radius:14px;padding:14px;flex:1}
+.feed-item{display:flex;align-items:flex-start;gap:8px;padding:7px 0;border-bottom:1px solid var(--cp-border);font-size:.75rem}
+.feed-item:last-child{border-bottom:none}
+.feed-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.feed-content{flex:1;min-width:0}
+.feed-who{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.feed-what{color:var(--cp-text-muted);font-size:.7rem;margin-top:1px}
+.feed-ts{font-size:.65rem;color:var(--cp-text-muted);white-space:nowrap;font-variant-numeric:tabular-nums;flex-shrink:0}
+/* State breakdown mini-bar */
+.breakdown{display:flex;height:6px;border-radius:3px;overflow:hidden;gap:2px;margin-bottom:16px}
+.breakdown-seg{border-radius:2px;transition:flex .4s ease}
+/* Empty */
+.empty-state{text-align:center;padding:40px 16px;color:var(--cp-text-muted)}
+.empty-state .ei{font-size:2rem;margin-bottom:10px}
+.empty-state h3{font-size:.9rem;font-weight:600;color:var(--cp-text);margin-bottom:4px}
+.empty-state p{font-size:.8rem}
+/* Spinner */
+.spin{display:inline-block;width:16px;height:16px;border:2px solid var(--cp-border);border-top-color:var(--cp-accent);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="brand-icon">📞</div>
+    <div>
+      <div class="brand-title">Contact Center Supervisor</div>
+      <div class="brand-sub">awm-d365ces-demo &middot; Agent Telephony State</div>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <div class="live-pill"><span class="live-dot"></span>LIVE</div>
+    <span class="clock" id="clock">--:--:--</span>
+    <span style="font-size:.72rem;color:var(--cp-text-muted)" id="lastUpdated">Connecting&hellip;</span>
+    <button class="btn" onclick="doRefresh()">&#8635; Refresh</button>
+  </div>
+</div>
+<div class="refresh-bar"><div class="refresh-bar-fill" id="rfbar"></div></div>
+
+<div class="kpi-row" id="kpiRow">
+  <div class="kpi-card"><div class="kpi-label">Total Agents</div><div class="kpi-value" id="kTotal"><span class="spin"></span></div><div class="kpi-sub">tracked</div></div>
+  <div class="kpi-card"><div class="kpi-label">Available</div><div class="kpi-value ok" id="kAvail">&mdash;</div><div class="kpi-sub">idle now</div></div>
+  <div class="kpi-card"><div class="kpi-label">Active Calls</div><div class="kpi-value" id="kActive">&mdash;</div><div class="kpi-sub">talking</div></div>
+  <div class="kpi-card"><div class="kpi-label">On Hold</div><div class="kpi-value" id="kHold">&mdash;</div><div class="kpi-sub">callers waiting</div></div>
+  <div class="kpi-card"><div class="kpi-label">Wrap-up (ACW)</div><div class="kpi-value" id="kAcw">&mdash;</div><div class="kpi-sub">post-call work</div></div>
+  <div class="kpi-card"><div class="kpi-label">Longest Hold</div><div class="kpi-value" id="kLongest">&mdash;</div><div class="kpi-sub" id="kLongestSub">&nbsp;</div></div>
+</div>
+
+<div class="breakdown" id="breakdown"></div>
+
+<div class="content">
+  <div>
+    <div class="section-header">
+      <div class="section-title">Agents <span class="badge-count" id="agentCount">0</span></div>
+      <div class="filter-tabs">
+        <button class="tab active" data-filter="all" onclick="setFilter('all',this)">All</button>
+        <button class="tab" data-filter="hold" onclick="setFilter('hold',this)">On Hold</button>
+        <button class="tab" data-filter="talking" onclick="setFilter('talking',this)">Talking</button>
+        <button class="tab" data-filter="acw" onclick="setFilter('acw',this)">ACW</button>
+        <button class="tab" data-filter="idle" onclick="setFilter('idle',this)">Idle</button>
+      </div>
+    </div>
+    <div class="agent-grid" id="agentGrid">
+      <div class="empty-state"><div class="ei"><span class="spin"></span></div><h3>Loading&hellip;</h3><p>Querying Dataverse</p></div>
+    </div>
+  </div>
+  <div class="right-panel">
+    <div class="alerts-panel">
+      <div class="section-header" style="margin-bottom:10px">
+        <div class="section-title">&#9888;&#65039; Hold Alerts <span class="badge-count" id="alertCount" style="background:rgba(220,38,38,.12);color:var(--cp-danger)">0</span></div>
+        <span style="font-size:.68rem;color:var(--cp-text-muted)">&gt;2 min</span>
+      </div>
+      <div id="alertsList"><div class="no-alerts">No alerts &#x2714;</div></div>
+    </div>
+    <div class="feed-panel">
+      <div class="section-header" style="margin-bottom:10px">
+        <div class="section-title">Activity Feed</div>
+        <span style="font-size:.68rem;color:var(--cp-text-muted)">Last 25 events</span>
+      </div>
+      <div id="feedList"><div class="no-alerts">Waiting for events&hellip;</div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const ORG_URL = (() => {
+  const p = new URLSearchParams(window.location.search).get("orgUrl");
+  if (p) return p;
+  if (window.location.hostname.endsWith(".crm.dynamics.com")) return window.location.origin;
+  return "https://org7ef5c70f.crm.dynamics.com";
+})();
+const REFRESH = 5000;
+const HOLD_WARN = 120000;
+const HOLD_CRIT = 300000;
+const SL = {100000000:"Idle",100000001:"Talking",100000002:"On Hold",100000003:"ACW"};
+const SC = {100000000:"idle",100000001:"talking",100000002:"hold",100000003:"acw"};
+const SD_C = {idle:"var(--sd)",talking:"var(--td)",hold:"var(--hd)",acw:"var(--ad)"};
+let _agents = {}, _feed = [], _filter = "all", _rft = null;
+
+function esc(s){return(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}
+function init(n){return(n||"?").split(" ").filter(Boolean).slice(0,2).map(w=>w[0].toUpperCase()).join("")}
+function fmtDur(ts){if(!ts)return"—";const s=Math.floor((Date.now()-new Date(ts).getTime())/1000);if(s<60)return s+"s";const m=Math.floor(s/60),ss=s%60;if(m<60)return m+"m "+String(ss).padStart(2,"0")+"s";return Math.floor(m/60)+"h "+String(m%60).padStart(2,"0")+"m"}
+function fmtTime(ts){try{return new Date(ts).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit",second:"2-digit"})}catch(e){return""}}
+function shortId(id){if(!id||id==="unknown")return"—";return id.length>14?"…"+id.slice(-10):id}
+
+async function fetchStates(){
+  const q="$select=alai_agentname,alai_telephonystate,alai_conversationid,alai_statetimestamp,alai_agenttelephonystateid,_alai_agentid_value&$orderby=alai_statetimestamp desc&$top=500";
+  if(window.Xrm&&Xrm.WebApi){try{const r=await Xrm.WebApi.retrieveMultipleRecords("alai_agenttelephonystate","?"+q);return r.entities}catch(e){}}
+  const r=await fetch(ORG_URL+"/api/data/v9.2/alai_agenttelephonystates?"+q,{headers:{Accept:"application/json","OData-MaxVersion":"4.0","OData-Version":"4.0"},credentials:"include"});
+  if(!r.ok)throw new Error("HTTP "+r.status);
+  return(await r.json()).value;
+}
+
+function processRecords(recs){
+  const latest={};
+  for(const r of recs){
+    const k=r._alai_agentid_value||r.alai_agentname||r.alai_agenttelephonystateid;
+    if(!latest[k])latest[k]=r;
+  }
+  // Build feed from all records (latest 25)
+  _feed = recs.slice(0,25);
+  return latest;
+}
+
+function updateKPIs(agents){
+  const vals=Object.values(agents);
+  const c={100000000:0,100000001:0,100000002:0,100000003:0};
+  let longestHoldMs=0,longestAgent=null;
+  for(const r of vals){
+    c[r.alai_telephonystate]=(c[r.alai_telephonystate]||0)+1;
+    if(r.alai_telephonystate===100000002&&r.alai_statetimestamp){
+      const ms=Date.now()-new Date(r.alai_statetimestamp).getTime();
+      if(ms>longestHoldMs){longestHoldMs=ms;longestAgent=r;}
+    }
+  }
+  const total=vals.length;
+  document.getElementById("kTotal").textContent=total||"0";
+  const avail=c[100000000];
+  const availEl=document.getElementById("kAvail");
+  availEl.textContent=avail;
+  availEl.className="kpi-value "+(total&&avail/total>0.5?"ok":avail/total>0.25?"warn":"danger");
+  document.getElementById("kActive").textContent=c[100000001];
+  const holdEl=document.getElementById("kHold");
+  holdEl.textContent=c[100000002];
+  holdEl.className="kpi-value "+(c[100000002]===0?"ok":c[100000002]<=2?"warn":"danger");
+  document.getElementById("kAcw").textContent=c[100000003];
+  const lhEl=document.getElementById("kLongest");
+  if(longestAgent){
+    lhEl.textContent=fmtDur(longestAgent.alai_statetimestamp);
+    lhEl.className="kpi-value "+(longestHoldMs>HOLD_CRIT?"danger":longestHoldMs>HOLD_WARN?"warn":"ok");
+    document.getElementById("kLongestSub").textContent=longestAgent.alai_agentname||"";
+  }else{
+    lhEl.textContent="—";lhEl.className="kpi-value";
+    document.getElementById("kLongestSub").textContent=" ";
+  }
+  // Breakdown bar
+  const bd=document.getElementById("breakdown");
+  if(total>0){
+    const segs=[
+      {c:c[100000001],col:"var(--td)"},
+      {c:c[100000002],col:"var(--hd)"},
+      {c:c[100000003],col:"var(--ad)"},
+      {c:c[100000000],col:"var(--sd)"},
+    ].filter(s=>s.c>0);
+    bd.innerHTML=segs.map(s=>`<div class="breakdown-seg" title="${s.c}" style="flex:${s.c};background:${s.col}"></div>`).join("");
+  }else{bd.innerHTML='<div class="breakdown-seg" style="flex:1;background:var(--cp-border)"></div>'}
+}
+
+function renderAlerts(agents){
+  const vals=Object.values(agents).filter(r=>r.alai_telephonystate===100000002&&r.alai_statetimestamp&&(Date.now()-new Date(r.alai_statetimestamp).getTime())>HOLD_WARN);
+  vals.sort((a,b)=>new Date(a.alai_statetimestamp)-new Date(b.alai_statetimestamp));
+  document.getElementById("alertCount").textContent=vals.length;
+  if(!vals.length){document.getElementById("alertsList").innerHTML='<div class="no-alerts">No alerts &#x2714;</div>';return;}
+  document.getElementById("alertsList").innerHTML=vals.map(r=>{
+    const ms=Date.now()-new Date(r.alai_statetimestamp).getTime();
+    const isCrit=ms>HOLD_CRIT;
+    return`<div class="alert-item">
+      <div class="alert-icon alert-hold" style="${isCrit?"background:var(--hi);color:var(--hf)":""}">${isCrit?"🚨":"⏸"}</div>
+      <div class="alert-body">
+        <div class="alert-name">${esc(r.alai_agentname||"Agent")}</div>
+        <div class="alert-desc">On hold for ${fmtDur(r.alai_statetimestamp)}</div>
+      </div>
+      <div class="alert-time">${fmtTime(r.alai_statetimestamp)}</div>
+    </div>`}).join("");
+}
+
+function renderFeed(){
+  if(!_feed.length){document.getElementById("feedList").innerHTML='<div class="no-alerts">No events yet</div>';return;}
+  document.getElementById("feedList").innerHTML=_feed.map(r=>{
+    const cl=SC[r.alai_telephonystate]||"idle";
+    const lb=SL[r.alai_telephonystate]||"Unknown";
+    return`<div class="feed-item">
+      <div class="feed-dot" style="background:${SD_C[cl]}"></div>
+      <div class="feed-content">
+        <div class="feed-who">${esc(r.alai_agentname||"Agent")}</div>
+        <div class="feed-what">→ ${lb}${r.alai_conversationid&&r.alai_conversationid!=="unknown"?" · "+shortId(r.alai_conversationid):""}</div>
+      </div>
+      <div class="feed-ts">${fmtTime(r.alai_statetimestamp)}</div>
+    </div>`}).join("");
+}
+
+function setFilter(f,el){
+  _filter=f;
+  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+  el.classList.add("active");
+  renderAgents();
+}
+
+function renderAgents(){
+  const grid=document.getElementById("agentGrid");
+  let entries=Object.values(_agents);
+  if(_filter!=="all")entries=entries.filter(r=>SC[r.alai_telephonystate]===_filter);
+  document.getElementById("agentCount").textContent=Object.values(_agents).length;
+  if(!entries.length){
+    grid.innerHTML=`<div class="empty-state"><div class="ei">${_filter==="all"?"🕐":"🔍"}</div><h3>${_filter==="all"?"No records yet":"No agents in this state"}</h3><p>${_filter==="all"?"Records appear once agents start receiving calls.":"Try a different filter."}</p></div>`;
+    return;
+  }
+  const order={100000002:0,100000001:1,100000003:2,100000000:3};
+  entries.sort((a,b)=>(order[a.alai_telephonystate]??4)-(order[b.alai_telephonystate]??4));
+  grid.innerHTML=entries.map(r=>{
+    const st=r.alai_telephonystate;const cl=SC[st]||"idle";const lb=SL[st]||"Unknown";
+    const nm=r.alai_agentname||"Agent";
+    const ts=r.alai_statetimestamp;
+    const ms=ts?Date.now()-new Date(ts).getTime():0;
+    const dur=fmtDur(ts);
+    const warn=st===100000002&&ms>HOLD_WARN;
+    const crit=st===100000002&&ms>HOLD_CRIT;
+    const holdPct=st===100000002?Math.min(100,(ms/HOLD_CRIT)*100):0;
+    return`<div class="acard s-${cl}">
+      <div class="acard-top">
+        <div style="display:flex;align-items:center;gap:8px;min-width:0">
+          <div class="avatar">${init(nm)}</div>
+          <div style="min-width:0">
+            <div class="aname" title="${esc(nm)}">${esc(nm)}</div>
+            <div class="aconv" title="${esc(r.alai_conversationid||"")}">${esc(shortId(r.alai_conversationid))}</div>
+          </div>
+        </div>
+        <div class="sbadge sb-${cl}"><span class="dot"></span>${lb}</div>
+      </div>
+      ${st===100000002?`<div class="hold-bar"><div class="hold-bar-fill" style="width:${holdPct.toFixed(1)}%${crit?";background:var(--cp-danger)":""}"></div></div>`:""}
+      <div class="acard-footer">
+        <span>In state</span>
+        <span class="dur${warn?" warn":""}">${dur}${crit?" 🚨":warn?" ⚠️":""}</span>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+function startBar(){
+  const b=document.getElementById("rfbar");
+  b.style.transition="none";b.style.width="0%";
+  requestAnimationFrame(()=>{b.style.transition=`width ${REFRESH}ms linear`;b.style.width="100%"});
+}
+
+async function doRefresh(){
+  try{
+    const recs=await fetchStates();
+    _agents=processRecords(recs);
+    updateKPIs(_agents);
+    renderAgents();
+    renderAlerts(_agents);
+    renderFeed();
+    document.getElementById("lastUpdated").textContent="Updated "+new Date().toLocaleTimeString();
+    startBar();
+  }catch(e){
+    console.error(e);
+    document.getElementById("lastUpdated").textContent="⚠ Error — "+e.message;
+  }
+}
+
+// Clock
+setInterval(()=>{document.getElementById("clock").textContent=new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit",second:"2-digit"})},1000);
+
+// Auto-refresh
+doRefresh();
+setInterval(doRefresh,REFRESH);
+// Re-render durations every second without a fetch
+setInterval(()=>{if(Object.keys(_agents).length>0){renderAgents();renderAlerts(_agents);updateKPIs(_agents);}},1000);
+</script>
+</body>
+</html>
