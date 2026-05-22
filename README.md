@@ -2,6 +2,9 @@
 
 See exactly what your agents are doing on the phone — in real time.
 
+<img width="2055" height="997" alt="image" src="https://github.com/user-attachments/assets/69ad380c-91fc-4829-bd8b-548febb52dd4" />
+
+
 This solution adds a live dashboard to your Dynamics 365 Contact Center that shows each agent's current phone state: **Idle**, **Talking**, **On Hold**, or **After Call Work (ACW)**. Supervisors see it in a new tab directly inside Customer Service workspace — no extra tools, no separate screens.
 
 ## What You Get
