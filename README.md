@@ -32,8 +32,19 @@ This solution adds a live dashboard to your Dynamics 365 Contact Center that sho
 3. Open **Form Libraries** → click **Add Library** → select `alai_telephonystate.js`
 4. Save and click **Publish All Customizations**
 
-### Step 3 — You're done
-Refresh Customer Service workspace. A new **Agent State Dashboard** tab will appear in the left navigation sidebar.
+### Step 3 — Add the dashboard to the Contact Center workspace navigation
+1. Go to [make.powerapps.com](https://make.powerapps.com) and select your environment
+2. Click **Apps** in the left menu
+3. Find **Customer Service workspace**, click the **⋯** menu → **Edit**
+4. In the app designer, click **Navigation** in the left panel
+5. Select the group where you want the dashboard to appear (e.g., the root or a Supervisor group), then click **Add** → **Subarea**
+6. Set **Content type** to **Web resource**
+7. Set **Web resource** to `alai_/html/supervisor_dashboard.html`
+8. Set **Title** to `Agent State Dashboard`
+9. Click **Save** then **Publish**
+
+### Step 4 — You're done
+Refresh Customer Service workspace. The **Agent State Dashboard** tab will now appear in the left navigation sidebar.
 
 ---
 

@@ -18,7 +18,14 @@ Real-time agent telephony state tracking for **Dynamics 365 Contact Center**. Su
 1. Import the solution zip (`AlAIAgentTelephonyState_1_0_0_0.zip`) via [make.powerapps.com](https://make.powerapps.com) > Solutions > Import solution
 2. Open the Active Conversation form in D365 > Form Libraries > add `alai_telephonystate.js` as a Form Library
 3. Publish all customizations
-4. Refresh CCW — "Agent State Dashboard" will appear in the nav sidebar automatically
+4. Add the dashboard to the CCW navigation:
+   - Go to make.powerapps.com → **Apps** → find **Customer Service workspace** → **⋯** → **Edit**
+   - In the app designer, click **Navigation** → select a group → **Add** → **Subarea**
+   - Set **Content type** = Web resource, **Web resource** = `alai_/html/supervisor_dashboard.html`, **Title** = `Agent State Dashboard`
+   - **Save** and **Publish**
+5. Refresh CCW — the **Agent State Dashboard** tab will now appear in the nav sidebar
+
+> **Note:** The dashboard does not appear automatically after import. The CCW app sitemap is owned by Microsoft and cannot be modified inside a solution package — the nav entry must be added manually via the app designer as described in step 4.
 
 ## Note
 
